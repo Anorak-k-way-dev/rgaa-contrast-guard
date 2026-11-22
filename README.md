@@ -2,7 +2,7 @@
 
 Vérificateur de ratio de contraste WCAG 2.1 / RGAA 4 ultra-léger, conçu pour aider les développeurs et designers à valider immédiatement la conformité de leurs couples de couleurs (textes normaux, grands textes et composants UI) et à trouver la teinte conforme la plus proche en un clic.
 
-🔗 **Démo en ligne :** `[À compléter : URL GitHub Pages ou Netlify]`
+🔗 **Démo en ligne :** [Ouvrir RGAA Contrast Guard](https://anorak-k-way-dev.github.io/rgaa-contrast-guard/)
 
 ## Choix d'architecture & Éco-conception
 
