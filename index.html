@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Vérificateur de contraste de couleurs conforme RGAA 4 et WCAG 2.1, sans dépendance et éco-conçu.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; base-uri 'self'; form-action 'self';">
+  <title>RGAA Contrast Guard — Vérificateur de contraste accessible</title>
+  <!-- Favicon SVG inline encodé : 0 requête HTTP et 0 erreur W3C -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Ccircle%20cx='16'%20cy='16'%20r='14'%20fill='%230f172a'/%3E%3Cpath%20d='M16%202a14%2014%200%200%201%200%2028z'%20fill='%23f8fafc'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+  <script defer src="js/contrast.js"></script>
+  <script defer src="js/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Aller au contenu principal</a>
+
+  <header class="site-header page-shell">
+    <h1>RGAA Contrast Guard</h1>
+    <p class="subtitle">
+      Vérificateur de ratio de contraste <abbr title="Règles d'accessibilité des contenus Web">WCAG</abbr> 2.1 /
+      <abbr title="Référentiel Général d'Amélioration de l'Accessibilité">RGAA</abbr> 4 ultra-léger, 100 % clavier et sans dépendance.
+    </p>
+  </header>
+
+  <main id="main-content" class="page-shell layout-grid">
+    <p id="sr-status" class="visually-hidden" aria-live="polite" aria-atomic="true"></p>
+
+    <!-- Colonne 1 : Saisie des couleurs -->
+    <section class="card" aria-labelledby="heading-controls">
+      <h2 id="heading-controls">Couleurs à analyser</h2>
+
+      <form id="contrast-form" novalidate>
+        <fieldset class="color-group">
+          <legend>Couleur du texte (premier plan)</legend>
+          <p id="fg-hint" class="field-hint">Format hexadécimal (#RGB ou #RRGGBB)</p>
+          <div class="input-row">
+            <label for="fg-picker" class="visually-hidden">Sélecteur visuel pour la couleur du texte</label>
+            <input type="color" id="fg-picker" value="#1d4ed8">
+            <label for="fg-hex" class="visually-hidden">Code hexadécimal pour la couleur du texte</label>
+            <input
+              type="text"
+              id="fg-hex"
+              value="#1d4ed8"
+              maxlength="7"
+              spellcheck="false"
+              autocomplete="off"
+              aria-describedby="fg-hint fg-error"
+            >
+          </div>
+          <p id="fg-error" class="field-error" hidden>Saisissez un code hexadécimal valide (ex. #1d4ed8).</p>
+        </fieldset>
+
+        <button type="button" id="swap-colors" class="btn btn-secondary btn-swap">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false">
+            <path d="M7 16V4m0 0L3 8m4-4 4 4M17 8v12m0 0 4-4m-4 4-4-4"/>
+          </svg>
+          <span>Inverser les couleurs</span>
+        </button>
+
+        <fieldset class="color-group">
+          <legend>Couleur d'arrière-plan (fond)</legend>
+          <p id="bg-hint" class="field-hint">Format hexadécimal (#RGB ou #RRGGBB)</p>
+          <div class="input-row">
+            <label for="bg-picker" class="visually-hidden">Sélecteur visuel pour la couleur d'arrière-plan</label>
+            <input type="color" id="bg-picker" value="#ffffff">
+            <label for="bg-hex" class="visually-hidden">Code hexadécimal pour la couleur d'arrière-plan</label>
+            <input
+              type="text"
+              id="bg-hex"
+              value="#ffffff"
+              maxlength="7"
+              spellcheck="false"
+              autocomplete="off"
+              aria-describedby="bg-hint bg-error"
+            >
+          </div>
+          <p id="bg-error" class="field-error" hidden>Saisissez un code hexadécimal valide (ex. #ffffff).</p>
+        </fieldset>
+      </form>
+
+      <section class="presets" aria-labelledby="heading-presets">
+        <h3 id="heading-presets" class="presets-title">Exemples rapides</h3>
+        <div class="presets-list">
+          <button type="button" class="btn btn-ghost preset-btn" data-fg="#0f172a" data-bg="#ffffff">AAA (17.8:1)</button>
+          <button type="button" class="btn btn-ghost preset-btn" data-fg="#767676" data-bg="#ffffff">Limite AA (4.5:1)</button>
+          <button type="button" class="btn btn-ghost preset-btn" data-fg="#94a3b8" data-bg="#ffffff">Non conforme (2.5:1)</button>
+        </div>
+      </section>
+    </section>
+
+    <!-- Colonne 2 : Résultats Bento -->
+    <section class="card" aria-labelledby="heading-results">
+      <h2 id="heading-results">Résultats RGAA 4</h2>
+
+      <p class="ratio-banner">
+        <span class="ratio-label">Ratio de contraste calculé</span>
+        <strong id="ratio-value" class="ratio-value">6.70 : 1</strong>
+      </p>
+
+      <aside id="suggestion-box" class="suggestion-box" aria-label="Suggestion de correction accessible">
+        <p id="suggestion-text"></p>
+        <button type="button" id="apply-suggestion" class="btn btn-primary" hidden>
+          Appliquer la teinte conforme AA (≥ 4.5:1)
+        </button>
+      </aside>
+
+      <ul class="criteria-list">
+        <li class="criteria-item" id="crit-normal-aa">
+          <p class="criteria-info">
+            <span class="criteria-name">Texte normal — Niveau AA</span>
+            <span class="criteria-rule">Seuil requis : ≥ 4.5 : 1 (RGAA 3.2)</span>
+          </p>
+          <span class="badge" data-badge>Conforme</span>
+        </li>
+        <li class="criteria-item" id="crit-normal-aaa">
+          <p class="criteria-info">
+            <span class="criteria-name">Texte normal — Niveau AAA</span>
+            <span class="criteria-rule">Seuil requis : ≥ 7 : 1</span>
+          </p>
+          <span class="badge" data-badge>Non conforme</span>
+        </li>
+        <li class="criteria-item" id="crit-large-aa">
+          <p class="criteria-info">
+            <span class="criteria-name">Texte grand (≥ 24 px ou ≥ 18.66 px gras) — AA</span>
+            <span class="criteria-rule">Seuil requis : ≥ 3 : 1 (RGAA 3.2)</span>
+          </p>
+          <span class="badge" data-badge>Conforme</span>
+        </li>
+        <li class="criteria-item" id="crit-ui-aa">
+          <p class="criteria-info">
+            <span class="criteria-name">Composants d'interface &amp; graphiques — AA</span>
+            <span class="criteria-rule">Seuil requis : ≥ 3 : 1 (RGAA 3.3)</span>
+          </p>
+          <span class="badge" data-badge>Conforme</span>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Colonne 3 : Aperçu en contexte -->
+    <section class="card preview-card" aria-labelledby="heading-preview">
+      <h2 id="heading-preview">Aperçu en contexte</h2>
+      <div class="preview-box" id="preview-box">
+        <p class="preview-normal">
+          Texte courant à 16 px : l'accessibilité numérique garantit un accès égal à l'information pour tous les usagers.
+        </p>
+        <p class="preview-large">
+          Texte grand format (24 px) — Titre ou accroche
+        </p>
+        <div class="preview-ui-sample">
+          <span class="preview-ui-btn">Bouton / Bordure d'interface</span>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M9 12l2 2 4-4"/>
+          </svg>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer page-shell">
+    <details class="ratio-guide">
+      <summary>Comprendre les sigles et seuils (3:1, 4.5:1, 7:1)</summary>
+      <dl class="guide-list">
+        <div class="guide-item">
+          <dt><abbr title="Référentiel Général d'Amélioration de l'Accessibilité">RGAA</abbr> &amp; <abbr title="Web Content Accessibility Guidelines">WCAG</abbr></dt>
+          <dd>Référentiels français et international d'accessibilité web (échelle de contraste de 1:1 à 21:1).</dd>
+        </div>
+        <div class="guide-item">
+          <dt>4.5 : 1 (Niveau AA — Texte normal)</dt>
+          <dd>Compense une baisse d'acuité visuelle (~20/40 : presbytie, fatigue, lecture au soleil).</dd>
+        </div>
+        <div class="guide-item">
+          <dt>7 : 1 (Niveau AAA — Texte normal)</dt>
+          <dd>Confort optimal recommandé pour les textes longs et les personnes malvoyantes (~20/80).</dd>
+        </div>
+        <div class="guide-item">
+          <dt>3 : 1 (Niveau AA — Grand texte &amp; <abbr title="Interface Utilisateur">UI</abbr>)</dt>
+          <dd>Textes larges (≥ 24 px ou ≥ 18,66 px gras), bordures et icônes discernables à moindre contraste.</dd>
+        </div>
+      </dl>
+    </details>
+
+    <p class="footer-credits">
+      Conçu selon les référentiels <strong><abbr title="Référentiel Général d'Amélioration de l'Accessibilité">RGAA</abbr> 4</strong>, <strong>Opquast</strong> et les bonnes pratiques <strong>GreenIT</strong> —
+      <a href="https://github.com/Anorak-k-way-dev" rel="noopener noreferrer">@Anorak-k-way-dev</a>
+    </p>
+  </footer>
+</body>
+</html>
